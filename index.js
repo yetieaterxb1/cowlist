@@ -10,7 +10,8 @@ var mysqlConnection = mysql.createConnection({
   port: 3306,
   user: 'root',
   password: 'GrantS',
-  database: 'cowDB'
+  database: 'cowDB',
+  multipleStatements: true
 });
 
 mysqlConnection.connect((err) => {
@@ -52,6 +53,19 @@ app.delete('/cows/:name', (req, res)=> {
     if(!err) {
       console.log(rows);
       res.send('Deleted successfully');
+    } else {
+      console.log(err);
+    }
+  })
+})
+
+app.post('/cows', (req, res)=> {
+  let cow = req.body;
+  var sql = "SET @cowID = ?; SET @name = ?; SET @description = ?; CALL new_cow(@cowID, @name, @description);";
+  mysqlConnection.query(sql,[cow.cowID, cow.name, cow.description], (err, rows, fields) => {
+    if(!err) {
+      console.log(rows);
+      res.send(rows);
     } else {
       console.log(err);
     }
